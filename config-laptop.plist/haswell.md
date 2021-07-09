@@ -2,7 +2,6 @@
 
 | Support | Version |
 | :--- | :--- |
-| Supported OpenCore version | 0.6.8 |
 | Initial macOS Support | OS X 10.8, Mountain Lion |
 
 ## Starting Point
@@ -36,7 +35,7 @@ This is where you'll add SSDTs for your system, these are very important to **bo
 
 For us we'll need a couple of SSDTs to bring back functionality that Clover provided:
 
-| Required_SSDTs | Description |
+| Required SSDTs | Description |
 | :--- | :--- |
 | **[SSDT-PLUG](https://dortania.github.io/Getting-Started-With-ACPI/)** | Allows for native CPU power management on Haswell and newer, see [Getting Started With ACPI Guide](https://dortania.github.io/Getting-Started-With-ACPI/) for more details. |
 | **[SSDT-EC](https://dortania.github.io/Getting-Started-With-ACPI/)** | Fixes the embedded controller, see [Getting Started With ACPI Guide](https://dortania.github.io/Getting-Started-With-ACPI/) for more details. |
@@ -67,8 +66,8 @@ This section allows us to dynamically modify parts of the ACPI (DSDT, SSDT, etc.
 | Enabled | Boolean | YES |
 | Count | Number | 0 |
 | Limit | Number | 0 |
-| Find | Data | 5f4f5349 |
-| Replace | Data | 584f5349 |
+| Find | Data | `5f4f5349` |
+| Replace | Data | `584f5349` |
 
 :::
 
@@ -132,9 +131,9 @@ Generally follow these steps when setting up your iGPU properties. Follow the co
 
 | AAPL,ig-platform-id | Type | Comment |
 | ------------------- | ---- | ------- |
-| **0500260A** | Laptop | To be used usually with HD5000, HD5100 and HD5200 |
-| **0600260A** | Laptop | To be used usually with HD4200, HD4400 and HD4600, you **must** use a `device-id`(see below) |
-| **0300220D** | NUC | To be used usually with all Haswell NUCs, HD4200/4400/4600 **must** use a `device-id`(see below) |
+| **`0500260A`** | Laptop | To be used usually with HD 5000, HD 5100 and HD 5200 |
+| **`0600260A`** | Laptop | To be used usually with HD 4200, HD 4400 and HD 4600, you **must** use a `device-id`(see below) |
+| **`0300220D`** | NUC | To be used usually with all Haswell NUCs, HD 4200/4400/4600 **must** use a `device-id`(see below) |
 
 #### Configuration Notes
 
@@ -142,16 +141,16 @@ In addition to the AAPL,ig-platform-id, you'll want to add the cursor byte size 
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| framebuffer-patch-enable | Data | 01000000 |
-| framebuffer-cursormem | Data | 00009000 |
+| framebuffer-patch-enable | Data | `01000000` |
+| framebuffer-cursormem | Data | `00009000` |
 
-**Special note for HD4200, HD4400 and HD4600**:
+**Special note for HD 4200, HD 4400 and HD 4600**:
 
 You will also require a device-id spoof to be supported:
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| device-id | Data | 12040000 |
+| device-id | Data | `12040000` |
 
 :::
 
@@ -260,11 +259,11 @@ Settings relating to the kernel, for us we'll be enabling the following:
 | :--- | :--- | :--- |
 | AppleCpuPmCfgLock | NO | Need if running 10.10 or older and cannot disable `CFG-Lock` in the BIOS |
 | AppleXcpmCfgLock | YES | Not needed if `CFG-Lock` is disabled in the BIOS |
-| DisableIOMapper | YES | Not needed if `VT-D` is disabled in the BIOS |
+| DisableIoMapper | YES | Not needed if `VT-D` is disabled in the BIOS |
 | LapicKernelPanic | NO | HP Machines will require this quirk |
 | PanicNoKextDump | YES | |
 | PowerTimeoutKernelPanic | YES | |
-| XhciPortLimit | YES | |
+| XhciPortLimit | YES | Disable if running macOS 11.3+ |
 
 :::
 
@@ -301,6 +300,7 @@ Settings relating to the kernel, for us we'll be enabling the following:
   * Sets trim timeout in microseconds for APFS filesystems on SSDs, only applicable for macOS 10.14 and newer with problematic SSDs.
 * **XhciPortLimit**: YES
   * This is actually the 15 port limit patch, don't rely on it as it's not a guaranteed solution for fixing USB. Please create a [USB map](https://dortania.github.io/OpenCore-Post-Install/usb/) when possible.
+  * With macOS 11.3+, [XhciPortLimit may not function as intended.](https://github.com/dortania/bugtracker/issues/162) We recommend users either disable this quirk and map before upgrading or [map from Windows](https://github.com/USBToolBox/tool). You may also install macOS 11.2.3 or older.
 
 The reason being is that UsbInjectAll reimplements builtin macOS functionality without proper current tuning. It is much cleaner to just describe your ports in a single plist-only kext, which will not waste runtime memory and such
 
@@ -535,13 +535,13 @@ For this Haswell example, we chose the MacBookPro11,1 SMBIOS. The typical breakd
 
 | SMBIOS | CPU Type | GPU Type | Display Size |
 | :--- | :--- | :--- | :--- |
-| MacBookAir6,1 | Dual Core 15w | iGPU: HD 5000 | 11" |
-| MacBookAir6,2 | Dual Core 15w | iGPU: HD 5000 | 13" |
-| MacBookPro11,1 | Dual Core 28w | iGPU: Iris 5100 | 13" |
-| MacBookPro11,2 | Quad Core 45w | iGPU: Iris Pro 5200 | 15" |
-| MacBookPro11,3 | Quad Core 45w | iGPU: Iris Pro 5200 + dGPU: GT750M | 15" |
-| MacBookPro11,4 | Quad Core 45w | iGPU: Iris Pro 5200 | 15" |
-| MacBookPro11,5 | Quad Core 45w | iGPU: Iris Pro 5200 + dGPU: R9 M370X | 15" |
+| MacBookAir6,1 | Dual Core 15W | iGPU: HD 5000 | 11" |
+| MacBookAir6,2 | Dual Core 15W | iGPU: HD 5000 | 13" |
+| MacBookPro11,1 | Dual Core 28W | iGPU: Iris 5100 | 13" |
+| MacBookPro11,2 | Quad Core 45W | iGPU: Iris Pro 5200 | 15" |
+| MacBookPro11,3 | Quad Core 45W | iGPU: Iris Pro 5200 + dGPU: GT 750M | 15" |
+| MacBookPro11,4 | Quad Core 45W | iGPU: Iris Pro 5200 | 15" |
+| MacBookPro11,5 | Quad Core 45W | iGPU: Iris Pro 5200 + dGPU: R9 M370X | 15" |
 | Macmini7,1 | NUC Systems | HD 5000/Iris 5100 | N/A |
 
 Run GenSMBIOS, pick option 1 for downloading MacSerial and Option 3 for selecting out SMBIOS.  This will give us an output similar to the following:
@@ -581,7 +581,7 @@ We set Generic -> ROM to either an Apple ROM (dumped from a real Mac), your NIC 
 
 ::: details More in-depth Info
 
-* **AdviseWindows**: NO
+* **AdviseFeatures**: NO
   * Used for when the EFI partition isn't first on the Windows drive
 
 * **MaxBIOSVersion**: NO
@@ -693,14 +693,6 @@ For those having booting issues, please make sure to read the [Troubleshooting s
 
 * [r/Hackintosh Subreddit](https://www.reddit.com/r/hackintosh/)
 * [r/Hackintosh Discord](https://discord.gg/2QYd7ZT)
-
-**Sanity check**:
-
-So thanks to the efforts of Ramus, we also have an amazing tool to help verify your config for those who may have missed something:
-
-* [**Sanity Checker**](https://opencore.slowgeek.com)
-
-Note that this tool is neither made nor maintained by Dortania, any and all issues with this site should be sent here: [Sanity Checker Repo](https://github.com/rlerdorf/OCSanity)
 
 ### Config reminders
 

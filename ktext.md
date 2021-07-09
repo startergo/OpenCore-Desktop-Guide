@@ -1,7 +1,5 @@
 # Gathering files
 
-* Supported version: 0.6.8
-
 This section is for gathering miscellaneous files for booting macOS, we do expect you to know your hardware well before starting and hopefully made a Hackintosh before as we won't be deep diving in here.
 
 > What's the best way to figure out if my hardware is supported?
@@ -11,6 +9,8 @@ See the [**Hardware Limitations page**](macos-limits.md) for some better insight
 > What are some ways to figure out what hardware I have?
 
 See the page before: [Finding your hardware](./find-hardware.md)
+
+[[toc]]
 
 ## Firmware Drivers
 
@@ -108,7 +108,6 @@ The below plugins are not required to boot, and merely add extra functionality t
   * Do not use if you don't have an ambient light sensor, can cause issues otherwise
 * SMCBatteryManager.kext
   * Used for measuring battery readouts on laptops, **desktops can ignore**
-  * Do not use until battery has been properly patched, can cause issues otherwise. So for initial setup, please omit this kext. After install you can follow this page for setup: [Fixing Battery Read-outs](https://dortania.github.io/OpenCore-Post-Install/laptop-specific/battery.html)
 * SMCDellSensors.kext
   * Allows for finer monitoring and control of the fans on Dell machines supporting System Management Mode(SMM)
   * **Do not use if you do not have a supported Dell machine**, mainly Dell laptops can benefit from this kext
@@ -116,7 +115,7 @@ The below plugins are not required to boot, and merely add extra functionality t
 ### Graphics
 
 * [WhateverGreen](https://github.com/acidanthera/WhateverGreen/releases)(<span style="color:red">Required</span>)
-  * Used for graphics patching DRM, boardID, framebuffer fixes, etc, all GPUs benefit from this kext.
+  * Used for graphics patching, DRM fixes, board ID checks, framebuffer fixes, etc; all GPUs benefit from this kext.
   * Note the SSDT-PNLF.dsl file included is only required for laptops and AIOs, see [Getting started with ACPI](https://dortania.github.io/Getting-Started-With-ACPI/) for more info
   * Requires OS X 10.8 or newer
 
@@ -157,8 +156,8 @@ Here we're going to assume you know what ethernet card your system has, reminder
   * Note: Atheros Killer E2500 models are actually Realtek based, for these systems please use [RealtekRTL8111](https://github.com/Mieze/RTL8111_driver_for_OS_X/releases) instead
 * [RealtekRTL8111](https://github.com/Mieze/RTL8111_driver_for_OS_X/releases)
   * For Realtek's Gigabit Ethernet
-  * Requires OS X 10.8-11(2.2.0), 10.12-13(v2.2.2), 10.14+(2.3.0)
-  * **NOTE: Sometimes Realtek's Gigabit Ethernet may not work correctly if you have RealtekRTL8111 v2.3.0. If you see this issue, try reverting to version 2.2.2**
+  * Requires OS X 10.8 and up for versions v2.2.0 and below, macOS 10.12 and up for versions v2.2.2 through v2.3.0 (inclusive), macOS 10.14 and up for versions v2.4.0 and up
+  * **NOTE:** Sometimes the latest version of the kext might not work properly with your Ethernet. If you see this issue, try older versions.
 * [LucyRTL8125Ethernet](https://www.insanelymac.com/forum/files/file/1004-lucyrtl8125ethernet/)
   * For Realtek's 2.5Gb Ethernet
   * Requires macOS 10.15 or newer
@@ -349,7 +348,7 @@ However ProperTree will handle this for you, so you need not concern yourself
 
 ### Laptop Specifics
 
-To figure out what kind of keyboard and trackpad you have, check Device Manager in Windows or `dmesg | grep input` in Linux
+To figure out what kind of keyboard and trackpad you have, check Device Manager in Windows or `dmesg | grep -i input` in Linux
 
 #### Input drivers
 
@@ -380,6 +379,11 @@ To figure out what kind of keyboard and trackpad you have, check Device Manager 
 :::
 
 #### Misc
+
+* [ECEnabler](https://github.com/1Revenger1/ECEnabler/releases)
+  * Fixes reading battery status on many devices (Allows reading EC fields over 8 bits long)
+* [BrightnessKeys](https://github.com/acidanthera/BrightnessKeys/releases)
+  * Fixes brightness keys automatically
 
 Please refer to [Kexts.md](https://github.com/acidanthera/OpenCorePkg/blob/master/Docs/Kexts.md) for a full list of supported kexts
 

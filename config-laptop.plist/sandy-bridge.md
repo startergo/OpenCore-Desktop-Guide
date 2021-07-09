@@ -2,7 +2,6 @@
 
 | Support | Version |
 | :--- | :--- |
-| Supported OpenCore version | 0.6.8 |
 | Initial macOS Support | OS X 10.6.7, Snow Leopard |
 | Note 1 | Sandy Bridge's iGPU is only officially supported up-to macOS 10.13 |
 | Note 2 | Most Sandy bridge boards do not support UEFI |
@@ -38,7 +37,7 @@ This is where you'll add SSDTs for your system, these are very important to **bo
 
 For us we'll need a couple of SSDTs to bring back functionality that Clover provided:
 
-| Required_SSDTs | Description |
+| Required SSDTs | Description |
 | :--- | :--- |
 | **[SSDT-PM](https://github.com/Piker-Alpha/ssdtPRGen.sh)** | Needed for proper CPU power management, you will need to run Pike's ssdtPRGen.sh script to generate this file. This will be run in [post install](https://dortania.github.io/OpenCore-Post-Install/). |
 | **[SSDT-EC](https://dortania.github.io/Getting-Started-With-ACPI/)** | Fixes the embedded controller, see [Getting Started With ACPI Guide](https://dortania.github.io/Getting-Started-With-ACPI/) for more details. |
@@ -65,9 +64,9 @@ Removing CpuPm:
 | All | Boolean | YES |
 | Comment | String | Delete CpuPm |
 | Enabled | Boolean | YES |
-| OemTableId | Data | 437075506d000000 |
+| OemTableId | Data | `437075506d000000` |
 | TableLength | Number | 0 |
-| TableSignature | Data | 53534454 |
+| TableSignature | Data | `53534454` |
 
 Removing Cpu0Ist:
 
@@ -76,9 +75,9 @@ Removing Cpu0Ist:
 | All | Boolean | YES |
 | Comment | String | Delete Cpu0Ist |
 | Enabled | Boolean | YES |
-| OemTableId | Data | 4370753049737400 |
+| OemTableId | Data | `4370753049737400` |
 | TableLength | Number | 0 |
-| TableSignature | Data | 53534454 |
+| TableSignature | Data | `53534454` |
 
 :::
 
@@ -96,8 +95,8 @@ This section allows us to dynamically modify parts of the ACPI (DSDT, SSDT, etc.
 | Enabled | Boolean | YES |
 | Count | Number | 0 |
 | Limit | Number | 0 |
-| Find | Data | 5f4f5349 |
-| Replace | Data | 584f5349 |
+| Find | Data | `5f4f5349` |
+| Replace | Data | `584f5349` |
 
 :::
 
@@ -160,8 +159,8 @@ Generally follow these steps when setting up your iGPU properties. Follow the co
 
 | AAPL,snb-platform-id | Type | Comment |
 | ------------------- | ---- | ------- |
-| **00000100** | Laptop | To be used with laptops |
-| **10000300** | NUC | To be used with Intel NUCs |
+| **`00000100`** | Laptop | To be used with laptops |
+| **`10000300`** | NUC | To be used with Intel NUCs |
 
 #### Configuration Notes
 
@@ -181,7 +180,7 @@ Some laptops from this era came with a mixed chipset setup, using Sandy Bridge C
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| device-id | Data | 3A1C0000 |
+| device-id | Data | `3A1C0000` |
 
 :::
 
@@ -289,7 +288,7 @@ Settings relating to the kernel, for us we'll be enabling the following:
 | Quirk | Enabled | Comment |
 | :--- | :--- | :--- |
 | AppleCpuPmCfgLock | YES | Not needed if `CFG-Lock` is disabled in the BIOS |
-| DisableIOMapper | YES | Not needed if `VT-D` is disabled in the BIOS |
+| DisableIoMapper | YES | Not needed if `VT-D` is disabled in the BIOS |
 | LapicKernelPanic | NO | HP Machines will require this quirk |
 | PanicNoKextDump | YES | |
 | PowerTimeoutKernelPanic | YES | |
@@ -330,6 +329,7 @@ Settings relating to the kernel, for us we'll be enabling the following:
   * Sets trim timeout in microseconds for APFS filesystems on SSDs, only applicable for macOS 10.14 and newer with problematic SSDs.
 * **XhciPortLimit**: YES
   * This is actually the 15 port limit patch, don't rely on it as it's not a guaranteed solution for fixing USB. Please create a [USB map](https://dortania.github.io/OpenCore-Post-Install/usb/) when possible.
+  * With macOS 11.3+, [XhciPortLimit may not function as intended.](https://github.com/dortania/bugtracker/issues/162) We recommend users either disable this quirk and map before upgrading or [map from Windows](https://github.com/USBToolBox/tool). You may also install macOS 11.2.3 or older.
 
 The reason being is that UsbInjectAll reimplements builtin macOS functionality without proper current tuning. It is much cleaner to just describe your ports in a single plist-only kext, which will not waste runtime memory and such
 
@@ -564,11 +564,11 @@ For this Sandy Bridge example, we'll chose the MacBookPro8,1 SMBIOS - this is do
 
 | SMBIOS | CPU Type | GPU Type | Display Size |
 | :--- | :--- | :--- | :--- |
-| MacBookAir4,1 | Dual Core 17w | iGPU: HD 3000 | 11" |
-| MacBookAir4,2 | Dual Core 17w | iGPU: HD 3000 | 13" |
-| MacBookPro8,1 | Dual Core 35w | iGPU: HD 3000 | 13" |
-| MacBookPro8,2 | Quad Core 45w(High End) | iGPU: HD 3000 + 6490M | 15" |
-| MacBookPro8,3 | Quad Core 45w(High End) | iGPU: HD 3000 + 6750M | 17" |
+| MacBookAir4,1 | Dual Core 17W | iGPU: HD 3000 | 11" |
+| MacBookAir4,2 | Dual Core 17W | iGPU: HD 3000 | 13" |
+| MacBookPro8,1 | Dual Core 35W | iGPU: HD 3000 | 13" |
+| MacBookPro8,2 | Quad Core 45W(High End) | iGPU: HD 3000 + 6490M | 15" |
+| MacBookPro8,3 | Quad Core 45W(High End) | iGPU: HD 3000 + 6750M | 17" |
 | Macmini5,1 | Dual Core NUC | iGPU: HD 3000 | N/A |
 | Macmini5,3 | Quad Core NUC | iGPU: HD 3000 | N/A |
 
@@ -609,7 +609,7 @@ We set Generic -> ROM to either an Apple ROM (dumped from a real Mac), your NIC 
 
 ::: details More in-depth Info
 
-* **AdviseWindows**: NO
+* **AdviseFeatures**: NO
   * Used for when the EFI partition isn't first on the Windows drive
 
 * **MaxBIOSVersion**: NO
@@ -730,14 +730,6 @@ For those having booting issues, please make sure to read the [Troubleshooting s
 
 * [r/Hackintosh Subreddit](https://www.reddit.com/r/hackintosh/)
 * [r/Hackintosh Discord](https://discord.gg/2QYd7ZT)
-
-**Sanity check**:
-
-So thanks to the efforts of Ramus, we also have an amazing tool to help verify your config for those who may have missed something:
-
-* [**Sanity Checker**](https://opencore.slowgeek.com)
-
-Note that this tool is neither made nor maintained by Dortania, any and all issues with this site should be sent here: [Sanity Checker Repo](https://github.com/rlerdorf/OCSanity)
 
 ### Config reminders
 

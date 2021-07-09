@@ -4,13 +4,7 @@ This section will go a bit deeper into the troubleshooting rabbit hole, specific
 
 **Note**: 99% of users do not need this level of debugging, this is only for the hardcore or extreme edge-cases.
 
-* [EFI Setup](#efi-setup)
-* [Config.plist Setup](#config-plist-setup)
-* [Serial Setup (Optional)](#serial-setup-optional)
-  * [CoolTerm Setup](#coolterm-setup)
-* [Kernel Debug Kits (Optional)](#kernel-debug-kits-optional)
-  * [KDK on an Installed OS](#kdk-on-an-installed-os)
-  * [Uninstalling the KDK](#uninstalling-the-kdk)
+[[toc]]
 
 ## EFI Setup
 
@@ -167,7 +161,7 @@ To start, we'll first need a minimum of a [free developer account](https://devel
 To determine which KDK build you need with beta builds, run the following in terminal:
 
 ```sh
-sw_vers | grep "BuildVersion"
+sw_vers | grep BuildVersion
 ```
 
 For this, I will be downloading Kernel Debug Kit 11.3 build 20E5186d. Once downloaded, mount the disk image and you'll find the KDK installer. By default, the KDK will only install itself for "Performing Two-Machine Debugging" and will provide zero extra benefit on the host machine for kernel debugging by default.

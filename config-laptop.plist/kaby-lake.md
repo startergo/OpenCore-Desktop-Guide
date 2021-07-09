@@ -2,7 +2,6 @@
 
 | Support | Version |
 | :--- | :--- |
-| Supported OpenCore version | 0.6.8 |
 | Initial macOS Support | macOS 10.12, Sierra |
 
 ## Starting Point
@@ -36,7 +35,7 @@ This is where you'll add SSDTs for your system, these are very important to **bo
 
 For us we'll need a couple of SSDTs to bring back functionality that Clover provided:
 
-| Required_SSDTs | Description |
+| Required SSDTs | Description |
 | :--- | :--- |
 | **[SSDT-PLUG](https://dortania.github.io/Getting-Started-With-ACPI/)** | Allows for native CPU power management on Haswell and newer, see [Getting Started With ACPI Guide](https://dortania.github.io/Getting-Started-With-ACPI/) for more details. |
 | **[SSDT-EC-USBX](https://dortania.github.io/Getting-Started-With-ACPI/)** | Fixes both the embedded controller and USB power, see [Getting Started With ACPI Guide](https://dortania.github.io/Getting-Started-With-ACPI/) for more details. |
@@ -67,8 +66,8 @@ This section allows us to dynamically modify parts of the ACPI (DSDT, SSDT, etc.
 | Enabled | Boolean | YES |
 | Count | Number | 0 |
 | Limit | Number | 0 |
-| Find | Data | 5f4f5349 |
-| Replace | Data | 584f5349 |
+| Find | Data | `5f4f5349` |
+| Replace | Data | `584f5349` |
 
 :::
 
@@ -132,43 +131,43 @@ Generally follow these steps when setting up your iGPU properties. Follow the co
 
 | AAPL,ig-platform-id | Type | Comment |
 | ------------------- | ---- | ------- |
-| **00001B59** | Laptop | Recommended for HD615, HD620, HD630, HD640 and HD650 |
-| **00001659** | Laptop | Alternative value to 00001B59 if you have acceleration issues, and recommended for all HD and UHD620 NUCs |
-| **0000C087** | Laptop | Recommended for Amber lake's UHD 617 and Kaby lake R's UHD620 |
-| **00001E59** | NUC | Recommended for HD615 |
-| **00001B59** | NUC | Recommended for HD630 |
-| **02002659** | NUC | Recommended for HD640/650 |
+| **`00001B59`** | Laptop | Recommended for HD 615, HD 620, HD 630, HD 640 and HD 650 |
+| **`00001659`** | Laptop | Alternative value to `00001B59` if you have acceleration issues, and recommended for all HD and UHD 620 NUCs |
+| **`0000C087`** | Laptop | Recommended for Amber Lake's UHD 617 and Kaby Lake-R's UHD 620 |
+| **`00001E59`** | NUC | Recommended for HD 615 |
+| **`00001B59`** | NUC | Recommended for HD 630 |
+| **`02002659`** | NUC | Recommended for HD 640/650 |
 
 #### Configuration Notes
 
-* For all `UHD620` users (Kaby Lake-R), you'll need a device-id spoof:
+* For all UHD 620 users (Kaby Lake-R), you'll need a device-id spoof:
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| device-id | Data | 16590000 |
+| device-id | Data | `16590000` |
 
-* For all HD6\*\* (`UHD` users are not concerned), there are some small issues with output where plugging anything would cause a lock up (kernel panic); here are some patches to mitigate that (credit Rehabman):
+* For all HD 6\*\* (`UHD` users are not concerned), there are some small issues with output where plugging anything would cause a lock up (kernel panic); here are some patches to mitigate that (credit Rehabman):
   * 0306 to 0105 (will probably explain what it does one day)
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| framebuffer-con1-enable | Data | 01000000 |
-| framebuffer-con1-alldata | Data | 01050A00 00080000 87010000 02040A00 00080000 87010000 FF000000 01000000 20000000 |
+| framebuffer-con1-enable | Data | `01000000` |
+| framebuffer-con1-alldata | Data | `01050A00 00080000 87010000 02040A00 00080000 87010000 FF000000 01000000 20000000` |
 
 * 0204 to 0105 (will probably explain what it does one day)
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| framebuffer-con2-enable | Data | 01000000 |
-| framebuffer-con2-alldata | Data | 01050A00 00080000 87010000 03060A00 00040000 87010000 FF000000 01000000 20000000 |
+| framebuffer-con2-enable | Data | `01000000` |
+| framebuffer-con2-alldata | Data | `01050A00 00080000 87010000 03060A00 00040000 87010000 FF000000 01000000 20000000` |
 
 * In some cases where you cannot set the DVMT-prealloc of these cards to 64MB higher in your UEFI Setup, you may get a kernel panic. Usually they're configured for 32MB of DVMT-prealloc, in that case these values are added to your iGPU Properties
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| framebuffer-patch-enable | Data | 01000000 |
-| framebuffer-stolenmem | Data | 00003001 |
-| framebuffer-fbmem | Data | 00009000 |
+| framebuffer-patch-enable | Data | `01000000` |
+| framebuffer-stolenmem | Data | `00003001` |
+| framebuffer-fbmem | Data | `00009000` |
 
 :::
 
@@ -276,11 +275,11 @@ Settings relating to the kernel, for us we'll be enabling the following:
 | Quirk | Enabled | Comment |
 | :--- | :--- | :--- |
 | AppleXcpmCfgLock | YES | Not needed if `CFG-Lock` is disabled in the BIOS |
-| DisableIOMapper | YES | Not needed if `VT-D` is disabled in the BIOS |
+| DisableIoMapper | YES | Not needed if `VT-D` is disabled in the BIOS |
 | LapicKernelPanic | NO | HP Machines will require this quirk |
 | PanicNoKextDump | YES | |
 | PowerTimeoutKernelPanic | YES | |
-| XhciPortLimit | YES | |
+| XhciPortLimit | YES | Disable if running macOS 11.3+ |
 
 :::
 
@@ -317,6 +316,7 @@ Settings relating to the kernel, for us we'll be enabling the following:
   * Sets trim timeout in microseconds for APFS filesystems on SSDs, only applicable for macOS 10.14 and newer with problematic SSDs.
 * **XhciPortLimit**: YES
   * This is actually the 15 port limit patch, don't rely on it as it's not a guaranteed solution for fixing USB. Please create a [USB map](https://dortania.github.io/OpenCore-Post-Install/usb/) when possible.
+  * With macOS 11.3+, [XhciPortLimit may not function as intended.](https://github.com/dortania/bugtracker/issues/162) We recommend users either disable this quirk and map before upgrading or [map from Windows](https://github.com/USBToolBox/tool). You may also install macOS 11.2.3 or older.
 
 The reason being is that UsbInjectAll reimplements builtin macOS functionality without proper current tuning. It is much cleaner to just describe your ports in a single plist-only kext, which will not waste runtime memory and such
 
@@ -551,9 +551,9 @@ For this Kaby Lake example, we'll chose the MacBookPro14,1 SMBIOS - this is done
 
 | SMBIOS | CPU Type | GPU Type | Display Size | Touch ID |
 | :--- | :--- | :--- | :--- | :--- |
-| MacBookPro14,1 | Dual Core 15w(Low End) | iGPU: Iris Plus 640 | 13" | No |
-| MacBookPro14,2 | Dual Core 15w(High End) | iGPU: Iris Plus 650 | 13" | Yes |
-| MacBookPro14,3 | Quad Core 45w | iGPU: HD 630 + dGPU: RP555/560 | 15" | Yes |
+| MacBookPro14,1 | Dual Core 15W(Low End) | iGPU: Iris Plus 640 | 13" | No |
+| MacBookPro14,2 | Dual Core 15W(High End) | iGPU: Iris Plus 650 | 13" | Yes |
+| MacBookPro14,3 | Quad Core 45W | iGPU: HD 630 + dGPU: Radeon Pro 555X/560X | 15" | Yes |
 | iMac18,1 | NUC Systems | iGPU: Iris Plus 640 |  N/A | No |
 
 Run GenSMBIOS, pick option 1 for downloading MacSerial and Option 3 for selecting out SMBIOS.  This will give us an output similar to the following:
@@ -593,7 +593,7 @@ We set Generic -> ROM to either an Apple ROM (dumped from a real Mac), your NIC 
 
 ::: details More in-depth Info
 
-* **AdviseWindows**: NO
+* **AdviseFeatures**: NO
   * Used for when the EFI partition isn't first on the Windows drive
 
 * **MaxBIOSVersion**: NO
@@ -702,14 +702,6 @@ For those having booting issues, please make sure to read the [Troubleshooting s
 
 * [r/Hackintosh Subreddit](https://www.reddit.com/r/hackintosh/)
 * [r/Hackintosh Discord](https://discord.gg/2QYd7ZT)
-
-**Sanity check**:
-
-So thanks to the efforts of Ramus, we also have an amazing tool to help verify your config for those who may have missed something:
-
-* [**Sanity Checker**](https://opencore.slowgeek.com)
-
-Note that this tool is neither made nor maintained by Dortania, any and all issues with this site should be sent here: [Sanity Checker Repo](https://github.com/rlerdorf/OCSanity)
 
 ### Config reminders
 

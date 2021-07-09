@@ -2,7 +2,6 @@
 
 | Support | Version |
 | :--- | :--- |
-| Supported OpenCore version | 0.6.8 |
 | Initial macOS Support([CFL](https://en.wikipedia.org/wiki/Coffee_Lake)) | macOS 10.13, High Sierra |
 | Initial macOS Support([CML](https://en.wikipedia.org/wiki/Comet_Lake_(microprocessor))) | macOS 10.15, Catalina |
 
@@ -37,7 +36,7 @@ This is where you'll add SSDTs for your system, these are very important to **bo
 
 For us we'll need a couple of SSDTs to bring back functionality that Clover provided:
 
-| Required_SSDTs | Description |
+| Required SSDTs | Description |
 | :--- | :--- |
 | **[SSDT-PLUG](https://dortania.github.io/Getting-Started-With-ACPI/)** | Allows for native CPU power management on Haswell and newer, see [Getting Started With ACPI Guide](https://dortania.github.io/Getting-Started-With-ACPI/) for more details. |
 | **[SSDT-EC-USBX](https://dortania.github.io/Getting-Started-With-ACPI/)** | Fixes both the embedded controller and USB power, see [Getting Started With ACPI Guide](https://dortania.github.io/Getting-Started-With-ACPI/) for more details. |
@@ -70,8 +69,8 @@ This section allows us to dynamically modify parts of the ACPI (DSDT, SSDT, etc.
 | Enabled | Boolean | YES |
 | Count | Number | 0 |
 | Limit | Number | 0 |
-| Find | Data | 5f4f5349 |
-| Replace | Data | 584f5349 |
+| Find | Data | `5f4f5349` |
+| Replace | Data | `584f5349` |
 
 :::
 
@@ -154,33 +153,33 @@ Generally follow these steps when setting up your iGPU properties. Follow the co
 
 | AAPL,ig-platform-id | Type | Comment |
 | ------------------- | ---- | ------- |
-| **0900A53E** | Laptop | Recommended value for UHD630 |
-| **00009B3E** | Laptop | Recommended value for UHD620 |
-| **07009B3E** | NUC | Recommended value for UHD 620/630 |
-| **0000A53E** | NUC | Recommended value for UHD 655 |
+| **`0900A53E`** | Laptop | Recommended value for UHD 630 |
+| **`00009B3E`** | Laptop | Recommended value for UHD 620 |
+| **`07009B3E`** | NUC | Recommended value for UHD 620/630 |
+| **`0000A53E`** | NUC | Recommended value for UHD 655 |
 
 #### Configuration Notes
 
-* For `UHD630` you likely do not need to fake the `device-id` as it is already `0x3E9B`. If it's anything else, you may use `device-id`=`9B3E0000`:
+* For UHD 630 you likely do not need to fake the `device-id` as it is already `0x3E9B`. If it's anything else, you may use `device-id`=`9B3E0000`:
   * You can check under Device Manager in Windows by bring up the iGPU, opening properties, selecting details, and clicking Hardware IDs.
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| device-id | Data | 9B3E0000 |
+| device-id | Data | `9B3E0000` |
   
-* An `UHD620` in a Comet Lake CPU **requires** `device-id`=`9B3E0000`:
+* A UHD 620 in a Comet Lake CPU **requires** `device-id`=`9B3E0000`:
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| device-id | Data | 9B3E0000 |
+| device-id | Data | `9B3E0000` |
 
 * In some cases where you cannot set the DVMT-prealloc of these cards to 64MB higher in your UEFI Setup, you may get a kernel panic. Usually they're configured for 32MB of DVMT-prealloc, in that case these values are added to your iGPU Properties
 
 | Key | Type | Value |
 | :--- | :--- | :--- |
-| framebuffer-patch-enable | Data | 01000000 |
-| framebuffer-stolenmem | Data | 00003001 |
-| framebuffer-fbmem | Data | 00009000 |
+| framebuffer-patch-enable | Data | `01000000` |
+| framebuffer-stolenmem | Data | `00003001` |
+| framebuffer-fbmem | Data | `00009000` |
 
 :::
 
@@ -288,11 +287,11 @@ Settings relating to the kernel, for us we'll be enabling the following:
 | Quirk | Enabled | Comment |
 | :--- | :--- | :--- |
 | AppleXcpmCfgLock | YES | Not needed if `CFG-Lock` is disabled in the BIOS |
-| DisableIOMapper | YES | Not needed if `VT-D` is disabled in the BIOS |
+| DisableIoMapper | YES | Not needed if `VT-D` is disabled in the BIOS |
 | LapicKernelPanic | NO | HP Machines will require this quirk |
 | PanicNoKextDump | YES | |
 | PowerTimeoutKernelPanic | YES | |
-| XhciPortLimit | YES | |
+| XhciPortLimit | YES | Disable if running macOS 11.3+ |
 
 :::
 
@@ -329,6 +328,7 @@ Settings relating to the kernel, for us we'll be enabling the following:
   * Sets trim timeout in microseconds for APFS filesystems on SSDs, only applicable for macOS 10.14 and newer with problematic SSDs.
 * **XhciPortLimit**: YES
   * This is actually the 15 port limit patch, don't rely on it as it's not a guaranteed solution for fixing USB. Please create a [USB map](https://dortania.github.io/OpenCore-Post-Install/usb/) when possible.
+  * With macOS 11.3+, [XhciPortLimit may not function as intended.](https://github.com/dortania/bugtracker/issues/162) We recommend users either disable this quirk and map before upgrading or [map from Windows](https://github.com/USBToolBox/tool). You may also install macOS 11.2.3 or older.
 
 The reason being is that UsbInjectAll reimplements builtin macOS functionality without proper current tuning. It is much cleaner to just describe your ports in a single plist-only kext, which will not waste runtime memory and such
 
@@ -563,9 +563,9 @@ For this Coffee Lake Plus example, we'll chose the MacBookPro16,1 SMBIOS - this 
 
 | SMBIOS | CPU Type | GPU Type | Display Size | Touch ID |
 | :--- | :--- | :--- | :--- | :--- |
-| MacBookPro16,1 | Hexa/Octa Core 45w | iGPU: UHD 630 + dGPU: 5300/5500M | 15" | Yes |
-| MacBookPro16,3 | Quad Core 15w | iGPU: Iris 645 | 13" | Yes |
-| MacBookPro16,4 | Hexa/Octa Core 45w | iGPU: UHD 630 + dGPU: 5600M | 15" | Yes |
+| MacBookPro16,1 | Hexa/Octa Core 45W | iGPU: UHD 630 + dGPU: 5300/5500M | 15" | Yes |
+| MacBookPro16,3 | Quad Core 15W | iGPU: Iris 645 | 13" | Yes |
+| MacBookPro16,4 | Hexa/Octa Core 45W | iGPU: UHD 630 + dGPU: 5600M | 15" | Yes |
 | Macmini8,1 | NUC Systems | HD 6000/Iris Pro 6200 |  N/A | No |
 
 Run GenSMBIOS, pick option 1 for downloading MacSerial and Option 3 for selecting out SMBIOS.  This will give us an output similar to the following:
@@ -607,7 +607,7 @@ We set Generic -> ROM to either an Apple ROM (dumped from a real Mac), your NIC 
 
 ::: details More in-depth Info
 
-* **AdviseWindows**: NO
+* **AdviseFeatures**: NO
   * Used for when the EFI partition isn't first on the Windows drive
 
 * **MaxBIOSVersion**: NO
@@ -716,14 +716,6 @@ For those having booting issues, please make sure to read the [Troubleshooting s
 
 * [r/Hackintosh Subreddit](https://www.reddit.com/r/hackintosh/)
 * [r/Hackintosh Discord](https://discord.gg/2QYd7ZT)
-
-**Sanity check**:
-
-So thanks to the efforts of Ramus, we also have an amazing tool to help verify your config for those who may have missed something:
-
-* [**Sanity Checker**](https://opencore.slowgeek.com)
-
-Note that this tool is neither made nor maintained by Dortania, any and all issues with this site should be sent here: [Sanity Checker Repo](https://github.com/rlerdorf/OCSanity)
 
 ### Config reminders
 
